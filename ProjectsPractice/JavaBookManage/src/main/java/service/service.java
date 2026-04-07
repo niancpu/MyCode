@@ -14,7 +14,9 @@ public class service{
         this.Uoper=Uoper;
         this.Aoper=Aoper;
     }
-
+    public String state(boolean bookstate){
+        return bookstate?"未借出":"已借出";
+    }
 
     public void start(){
         Runtime.getRuntime().addShutdownHook(new Thread(()->{
@@ -33,11 +35,13 @@ public class service{
                     =====欢迎您！管理员=====
                     请选择您需要的操作：
                     1.查找图书
-                    2.查询图书信息
-                    3.更改图书名字
-                    4.更改图书状态
-                    5.总览图书馆状态
-                    6.查询图书借阅状态
+                    2.存放图书
+                    3.删除图书
+                    4.更改图书名字
+                    5.更改图书状态
+                    6.更改图书价格
+                    7.总览图书馆状态
+                    8.查询图书借阅状态
                     
                     """);
             if (sc.nextInt()==1){
@@ -45,13 +49,28 @@ public class service{
                 BookEntity book=Uoper.find(sc.nextLine());
                 if (book!=null){
                     System.out.printf("""
-                            您要查询的图书存在:
+                            图书馆存在您要查询的这本书，它的信息是:
                             ID:%d;
                             书名:%s;
                             书籍价格:%f;
                             书籍状态:%s
-                            """);
+                            """,
+                            book.getId(),
+                            book.getBookName(),
+                            book.getPrice(),
+                            state(book.getState())
+                    );
                 }
+
+            }
+            else if(sc.nextInt()==2){
+                System.out.print("""
+                        输入您要存放的图书的信息：
+                        书名: 
+                        """);
+                String name= sc.next();
+                System.out.print("价格: ");
+                float price=sc.nextFloat();
 
             }
         }
