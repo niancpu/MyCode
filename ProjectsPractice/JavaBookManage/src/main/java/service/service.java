@@ -33,7 +33,6 @@ public class service {
                 """);
         String choice = sc.nextLine();
         switch (choice) {
-
             case "1" -> {
                 System.out.println("""
                         =====欢迎您！管理员=====
@@ -48,11 +47,12 @@ public class service {
                         8.查询图书借阅状态
                         
                         """);
-                choice = sc.nextLine();
+                choice = sc.nextLine().trim();
+                BookEntity book;
                 switch (choice) {
                     case "1" -> {
                         System.out.println("请输入您要查找的图书的名字：\n");
-                        BookEntity book = Uoper.find(sc.nextLine());
+                        book = Uoper.find(sc.nextLine());
                         if (book != null) {
                             System.out.printf("""
                                             图书馆存在您要查询的这本书，它的信息是:
@@ -73,9 +73,10 @@ public class service {
                                 输入您要存放的图书的信息：
                                 书名: 
                                 """);
-                        String name = sc.next();
+                        book.setBookName(sc.next().trim());
                         System.out.print("价格: ");
                         float price = sc.nextFloat();
+                        book.setPrice();
                     }
 
                 }
