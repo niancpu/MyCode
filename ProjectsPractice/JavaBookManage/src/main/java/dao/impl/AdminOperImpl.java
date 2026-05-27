@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 public class AdminOperImpl implements AdminOperation {
     private final static UserOperation Uoper=new UserOperImpl();
     private final static DatabaseOperation oper=new DbOperFileImpl();
-    private final static Path dbpath = Paths.get("db.dat");
 
     @Override
     public boolean changeName (String originalName,String name){
@@ -41,20 +40,11 @@ public class AdminOperImpl implements AdminOperation {
     }
     @Override
     public boolean addBook(String name,float price) {
-        long dbsize;
-        try {
-            dbsize= Files.size(dbpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         BookEntity book=new BookEntity();
         book.setBookName(name);
         book.setPrice(price);
-        int id=(int)dbsize / BookEntity.TOTAL_LENGTH+1;
-        book.setId(id);
         oper.add(book);
         return Uoper.ask(book.getBookName());
-
         }
 
     @Override
@@ -69,17 +59,12 @@ public class AdminOperImpl implements AdminOperation {
         }
     }
     public static void libraryOverview(){
-        long dbsize;
-        try {
-            dbsize=Files.size(dbpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        int bookNum=oper.getBookNum();
         var book=new BookEntity();
         int normalBook=0;
         int onLoan=0;
         int blank=0;
-        for(int i = 1; i<=dbsize / BookEntity.TOTAL_LENGTH; i++){
+        for(int i = 1; i<=bookNum; i++){
             book=oper.get(i);
             if(book.getId()!=0){
                 if(book.getState()){

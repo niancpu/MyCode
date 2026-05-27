@@ -13,17 +13,11 @@ import java.nio.file.Paths;
 
 public class UserOperImpl implements UserOperation {
     private final DatabaseOperation oper = new DbOperFileImpl();
-    private final Path dbpath = Paths.get("db.dat");
 
     @Override
     public boolean ask(String name) {
-        long dbsize;
-        try {
-            dbsize = Files.size(dbpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        for (int i = 1; i < dbsize / BookEntity.TOTAL_LENGTH; i++) {
+        int bookNum= oper.getBookNum();
+        for (int i = 1; i < bookNum; i++) {
             BookEntity book;
             book = oper.get(i);
             if (book.getBookName().equals(name)) {
@@ -35,13 +29,8 @@ public class UserOperImpl implements UserOperation {
 
     @Override
     public BookEntity find(String name) {
-        long dbsize;
-        try {
-            dbsize = Files.size(dbpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        for (int i = 1; i < dbsize / BookEntity.TOTAL_LENGTH; i++) {
+        int bookNum= oper.getBookNum();
+        for (int i = 1; i <= bookNum; i++) {
             BookEntity book;
             book = oper.get(i);
             if (book.getBookName().equals(name)&&book.getState()) {
@@ -52,23 +41,16 @@ public class UserOperImpl implements UserOperation {
     }
     @Override
     public  BookEntity find(int id){
-        long dbsize;
-        try {
-            dbsize = Files.size(dbpath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        BookEntity book;
-        return book= oper.get(id);
+        return oper.get(id);
     }
-
 
     @Override
     public boolean borrow(String name){
         BookEntity book;
         if((book=find(name))!=null){
             book.setState(false);
-            return true;
+            oper.updata(book);
+            return !find(name).getState();
         }
         else{
             return false;
@@ -79,7 +61,8 @@ public class UserOperImpl implements UserOperation {
         BookEntity book;
         if((book=find(name))!=null){
             book.setState(true);
-            return (book=find(name)).getState();
+            oper.updata(book);
+            return (find(name)).getState();
         }
         else{
             return false;

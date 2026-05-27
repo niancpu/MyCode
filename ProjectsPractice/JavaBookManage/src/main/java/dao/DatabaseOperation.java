@@ -6,4 +6,5 @@ public interface DatabaseOperation {
     void delete(int id);
     void add(BookEntity book);
     BookEntity get(int id);
+    int getBookNum();
 }

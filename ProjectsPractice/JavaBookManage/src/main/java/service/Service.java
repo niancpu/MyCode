@@ -77,9 +77,15 @@ public class Service {
                         }
                         case "2" -> {
                             System.out.print("""
+                                    目前不支持存入书名为纯数字的图书。
                                     输入您要存放的图书的信息：
                                     书名:""");
+
                             String name = sc.next().trim();
+                            if(name.matches("\\d+")){
+                                System.out.println("不支持纯数字书名");
+                                break;
+                            }
                             System.out.print("价格: ");
                             float price = sc.nextFloat();
                             try {
