@@ -33,7 +33,7 @@ prompt_history = [f"用户请求: {user_prompt}"]
 print(f"用户输入: {user_prompt}\n" + "="*40)
 
 # --- 3. 运行主循环 ---
-for i in range(5): # 设置最大循环次数
+for i in range(2): # 设置最大循环次数
     print(f"--- 循环 {i+1} ---\n")
     
     # 3.1. 构建Prompt
@@ -43,7 +43,7 @@ for i in range(5): # 设置最大循环次数
     response=llm.chat.completions.create(
         model=MODEL_ID,
         messages=[
-            {"role":"user","content":user_prompt},
+            {"role":"user","content":full_prompt},
             {"role":"system","content":system_prompt.AGENT_SYSTEM_PROMPT}
         ]
     )

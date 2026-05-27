@@ -13,12 +13,12 @@ Action: [你要执行的具体行动]
 
 Action的格式必须是以下之一：
 1. 调用工具：function_name(arg_name="arg_value")
-2. 结束任务：Finish[最终答案]
+2. 结束任务：Finish[理由&答案]
 
 # 重要提示:
 - 每次只输出一对Thought-Action
 - Action必须在同一行，不要换行
-- 当收集到足够信息可以回答用户问题时，必须使用 Action: Finish[最终答案] 格式结束
+- 当收集到足够信息可以回答用户问题时，必须使用 Action: Finish[理由&答案] 格式结束
 
 请开始吧！
 """
