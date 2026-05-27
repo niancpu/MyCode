@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gcc \"2586.统计范围内的元音字符串数.c\" -o 2586.exe)",
+      "Bash(./2586.exe)",
+      "Bash(mkdir -p \"D:\\\\workfield\\\\MyCode\\\\LeetCode\\\\src\\\\.vscode\")",
+      "Bash(mv \"D:\\\\workfield\\\\MyCode\\\\LeetCode\\\\.vscode/\"* \"D:\\\\workfield\\\\MyCode\\\\LeetCode\\\\src\\\\.vscode/\")",
+      "Bash(rmdir \"D:\\\\workfield\\\\MyCode\\\\LeetCode\\\\.vscode\")"
+    ]
+  }
+}
