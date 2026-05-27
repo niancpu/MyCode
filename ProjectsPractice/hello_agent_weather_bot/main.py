@@ -4,19 +4,22 @@ from tavily import TavilyClient
 import tools
 from openai import OpenAI
 import system_prompt
+from dotenv import load_dotenv
+
 
 def main():
     print("Hello from hello-agent!")
 
+def get_env(name:str)->str:#通过一个get_env函数批量获取环境变量同时进行类型检验
+    val = os.getenv(name)
+    if val is None:
+        raise ValueError(f"缺少环境变量：{name}")
+    return val
 
+# --- 2. 初始化 ---
+load_dotenv()
 
-# --- 1. 配置LLM客户端 ---
-# 请根据您使用的服务，将这里替换成对应的凭证和地址
-API_KEY = "YOUR_API_KEY"
-BASE_URL = "YOUR_BASE_URL"
-MODEL_ID = "YOUR_MODEL_ID"
-TAVILY_API_KEY="YOUR_Tavily_KEY"
-os.environ['TAVILY_API_KEY'] = "YOUR_TAVILY_API_KEY"
+TAVILY_API_KEY,BASE_URL,API_KEY,MODEL_ID=[get_env(k) for k in ("TAVILY_API_KEY","BASE_URL","API_KEY","MODEL_ID")]
 
 llm = OpenAI(
 
@@ -24,7 +27,6 @@ llm = OpenAI(
     base_url=BASE_URL
 )
 
-# --- 2. 初始化 ---
 user_prompt = "你好，请帮我查询一下今天北京的天气，然后根据天气推荐一个合适的旅游景点。"
 prompt_history = [f"用户请求: {user_prompt}"]
 
