@@ -15,7 +15,6 @@ public class UserOperImpl implements UserOperation {
     private final DatabaseOperation oper = new DbOperFileImpl();
     private final Path dbpath = Paths.get("db.dat");
 
-
     @Override
     public boolean ask(String name) {
         long dbsize;
@@ -51,6 +50,19 @@ public class UserOperImpl implements UserOperation {
         }
         return null;
     }
+    @Override
+    public  BookEntity find(int id){
+        long dbsize;
+        try {
+            dbsize = Files.size(dbpath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        BookEntity book;
+        return book= oper.get(id);
+    }
+
+
     @Override
     public boolean borrow(String name){
         BookEntity book;

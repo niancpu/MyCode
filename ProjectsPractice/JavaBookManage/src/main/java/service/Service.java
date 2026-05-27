@@ -31,28 +31,32 @@ public class Service {
                     =====欢迎来到图书馆=====
                     您是管理员还是用户？
                     1.管理员
-                    2，用户
-                    """);
+                    2，用户""");
             String choice = sc.nextLine();
         while (true) {
             switch (choice) {
                 case "1" -> {
                     System.out.println("""
-                            =====欢迎您！管理员=====
+                            管理员，
                             请选择您需要的操作：
                             1.查找图书
                             2.存放图书
                             3.删除图书
                             4.更改图书名字
                             5.更改图书价格
-                            6.总览图书馆状态 
-                            """);
-                    choice = sc.nextLine().trim();
+                            6.总览图书馆状态""");
+                    String choice2 = sc.nextLine().trim();
                     BookEntity book = new BookEntity();
-                    switch (choice) {
+                    switch (choice2) {
                         case "1" -> {
-                            System.out.println("请输入您要查找的图书的名字：\n");
-                            book = Uoper.find(sc.nextLine());
+                            System.out.println("请输入您要查找的图书的名字或id：");
+                            String input=sc.nextLine();
+                            if(input.matches("\\d+")){
+                                book=Uoper.find(Integer.parseInt(input));
+                            }
+                            else{
+                                book = Uoper.find(input);
+                            }
                             if (book != null) {
                                 System.out.printf("""
                                                 图书馆存在您要查询的这本书，它的信息是:
@@ -67,12 +71,14 @@ public class Service {
                                         state(book.getState())
                                 );
                             }
+                            else{
+                                System.out.println("书籍不存在！");
+                            }
                         }
                         case "2" -> {
                             System.out.print("""
                                     输入您要存放的图书的信息：
-                                    书名: 
-                                    """);
+                                    书名:""");
                             String name = sc.next().trim();
                             System.out.print("价格: ");
                             float price = sc.nextFloat();
@@ -83,9 +89,7 @@ public class Service {
                             }
                         }
                         case "3" -> {
-                            System.out.println("""
-                                    输入您要删除的图书的名字：
-                                    """);
+                            System.out.println("输入您要删除的图书的名字：");
                             if (Aoper.delbook(sc.nextLine().trim())) {
                                 System.out.println("删除成功！");
                             } else {
@@ -94,9 +98,7 @@ public class Service {
 
                         }
                         case "4" -> {
-                            System.out.println("""
-                                    请输入您要更改名字的图书的书名：
-                                    """);
+                            System.out.println("请输入您要更改名字的图书的书名：");
                             String orginalName = sc.nextLine().trim();
                             System.out.println("请输入您想要改的名字：");
                             String name = sc.nextLine().trim();
@@ -119,24 +121,26 @@ public class Service {
                             }
                         }
                         case "6" -> {
-                            CompletableFuture.runAsync(AdminOperImpl::libraryOverview)
+
+                            CompletableFuture <Void> future=CompletableFuture.runAsync(AdminOperImpl::libraryOverview)
                                     .thenRun(() -> System.out.println("输出完毕！"));
                             System.out.println("正在大调查...");
+                            future.join();
                         }
                         default -> System.out.println("请输入合法字符");
+
                     }
                 }
                 case "2" -> {
                     System.out.println("""
-                            =====欢迎您！用户=====
+                            用户，
                             请选择您需要的操作：
                             1.借阅图书
                             2.归还图书
-                            3.查找图书
-                            """);
-                    choice = sc.nextLine();
+                            3.查找图书""");
+                    String choice2 = sc.nextLine();
                     var book = new BookEntity();
-                    switch (choice) {
+                    switch (choice2) {
                         case "1" -> {
                             System.out.println("请输入您要借阅的图书：");
                             String name = sc.nextLine().trim();
@@ -165,8 +169,7 @@ public class Service {
                                                 ID:%d;
                                                 书名:%s;
                                                 书籍价格:%f;
-                                                书籍状态:%s
-                                                """,
+                                                书籍状态:%s""",
                                         book.getId(),
                                         book.getBookName(),
                                         book.getPrice(),
@@ -177,6 +180,12 @@ public class Service {
                     }
                 }
                 default -> System.out.println("请输入合法字符\n");
+            }
+            System.out.println("-----按下Enter开启下一轮操作-----");
+            if(sc.nextLine().isEmpty()){
+            }
+            else {
+                break;
             }
         }
     }
