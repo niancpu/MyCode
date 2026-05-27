@@ -81,7 +81,6 @@ public class DbOperFileImpl implements DatabaseOperation {
                                 .getFloat()
                 );
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -95,7 +94,5 @@ public class DbOperFileImpl implements DatabaseOperation {
         }catch(Exception e){
             e.printStackTrace();
         }
-
     }
-
 }
