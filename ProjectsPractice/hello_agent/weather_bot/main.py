@@ -1,9 +1,9 @@
 import re
 import os
 from tavily import TavilyClient
-import tools
+import hello_agent.hello_agent_weather_bot.tools as tools
 from openai import OpenAI
-import system_prompt
+import hello_agent.hello_agent_weather_bot.system_prompt as system_prompt
 from dotenv import load_dotenv
 
 
