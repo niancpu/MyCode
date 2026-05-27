@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java:*)",
+      "mcp__exa__web_search_exa"
+    ]
+  }
+}
