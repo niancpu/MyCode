@@ -33,7 +33,11 @@ def handle_msg(line:str)->Msg|None:
         return None
 
 
-        
+    if msg.method is "initialize":
+        assert msg.id is not None
+        inited_resp=init_resp(msg.id)
+        send_resp(inited_resp)
+        return None
     return msg
     
     
@@ -66,12 +70,7 @@ def list_tools()->None:
 
 def dispath(method:str)->dict|None:
     if method in tool_desc:
-        return {method:tool_desc[method]}
-    elif(method=="initialize"):
-        assert msg.id is not None
-        inited_resp=init_resp(msg.id)
-        send_resp(inited_resp)
-        return None
+        return {method:tool_desc[method]}        
     else:
         return None
 
@@ -82,7 +81,8 @@ def main():
         msg=handle_msg(x)
         if msg is None:
             continue
-
+        tool
+        dispath(msg.method)
 
 
             
