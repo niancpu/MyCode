@@ -2,6 +2,11 @@ import subprocess
 import json
 from typing import Optional
 from models import Resp,Msg
+from logger_config import logger_config
+import logging
+
+logger_config()
+logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 
 class server:
@@ -15,9 +20,7 @@ class server:
             text=True
         )
         self.id:int=0
-        self.protocolVersion: str | None = None
-        self.capabilities: dict | None = None#tools
-        self.serverInfo: dict | None = None#name&version
+
     
     def _next_id(self)->int:
         self.id+=1
@@ -37,7 +40,7 @@ class server:
         return self.read_response(msg.id,line)
 
     def send_notification(self)->None:
-        notification=Msg(method="notification/initialized")
+        notification=Msg(method="notifications/initialized")
         assert self.proc.stdin is not None
         assert self.proc.stdout is not None
         self.proc.stdin.write(json.dumps(notification)+"\n")

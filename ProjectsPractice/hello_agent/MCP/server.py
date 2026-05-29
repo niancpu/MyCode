@@ -4,6 +4,11 @@ import json
 from client import Msg,Resp
 from dotenv import load_dotenv
 from os import getenv
+from logger_config import logger_config
+import logging
+
+logger_config()
+logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 load_dotenv()
 tool_desc={}
@@ -20,20 +25,17 @@ def handle_msg(line:str)->Msg|None:
         send_resp(handle_error(None,-32700,"Parse error",f"不是合法json:{e}"))
     if not msg:
         return None
-    if msg.jsonrpc is not "2.0":
+    if msg.jsonrpc == "2.0":#非对象比较用“==”
         error=handle_error(msg.id,-32600,"Invalid Request","jsonrpc 应当是 2.0")
         send_resp(error)
         return None
-    if msg.method is "notification/initialized":
+    if msg.method == "notifications/initialized":
         handle_initialized_notifications()
         return None
-    if msg.id is None:
-        error=handle_error(msg.id,-32600,"Invalid Request","非notification消息返回体无id")
-        send_resp(error)
-        return None
+    #无需判断非notifacation是否有id，因为只要是没有id一律视为notifacation
 
 
-    if msg.method is "initialize":
+    if msg.method == "initialize":
         assert msg.id is not None
         inited_resp=init_resp(msg.id)
         send_resp(inited_resp)
@@ -42,16 +44,14 @@ def handle_msg(line:str)->Msg|None:
     
     
 def handle_error(id:int|None,code:int,type:str,desc:str|None=None)->Resp:
-    error={"code":code,"message":f"[{type}] {desc}"}
+    error={"code":code,"message":f"{type}","data":f"{desc}"}
     err_msg=Resp(id=id,result=None,error=error)
     return err_msg
 
-def init_resp(id:int)->Resp:
-    capabilities=list_tools()
-    serverInfo= {"name":"nianzu's handmade MCP","version":VERSION}
-    result={"protocolVersion":"2.0","serverInfo":serverInfo,"capabilities":capabilities}
-    resp=Resp(id=id,result=result)
-    return resp
+def list_capabilities()->dict[str,dict]:
+    return {"tools":{}}
+
+
 
 def send_resp(resp:Resp)->None:
     json_resp=resp.model_dump_json()
@@ -63,26 +63,43 @@ def handle_initialized_notifications()->None:
     pass
     
 
-def list_tools()->None:
-    for i in registry.tools:
-        tool_desc[i]=registry.tools[i]["description"]
-    return None
 
-def dispath(method:str)->dict|None:
-    if method in tool_desc:
-        return {method:tool_desc[method]}        
-    else:
+
+
+class Server:
+    def __init__(self):
+        self.protocolVersion: dict = {"name":"nianzu's handmade MCP","version":VERSION}
+        self.capabilities: dict | None= None #tools
+        self.serverInfo: str = "2024-11-05"#name&version 
+
+    def dispath(self,method:str)->dict|None:
+        if method in tool_desc:
+            return {method:tool_desc[method]}        
+        else:
+            return None
+        
+    def init_resp(self,id:int)->Resp:
+        self.capabilities=list_capabilities()
+        result={"protocolVersion":self.protocolVersion,"serverInfo":self.serverInfo,"capabilities":self.capabilities}
+        resp=Resp(id=id,result=result)
+        return resp
+
+    def list_tools(self)->None:
+        for i in registry.tools:
+            tool_desc[i]=registry.tools[i]["description"]
         return None
-
+    def run(self)->None:
+        self.list_tools()
+        for x in sys.stdin:#sys.stdin默认用\n作为分隔符
+            msg=handle_msg(x)
+            if msg is None:
+                continue
+            tool_desc=self.dispath(msg.method)
+            if tool_desc is None:
+                return None
+        
 
 def main():
-    list_tools()
-    for x in sys.stdin:#sys.stdin默认用\n作为分隔符
-        msg=handle_msg(x)
-        if msg is None:
-            continue
-        tool
-        dispath(msg.method)
 
 
             
