@@ -1,13 +1,13 @@
-from tools import registry
 import sys
 import json
-from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema
+from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema,ListResult
 from dotenv import load_dotenv
 from os import getenv
-from logger_config import logger_config
 import logging
+from utils import get_logger
+from tools.tool_register import registry
 
-logger_config()
+log=get_logger(__name__)
 log=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 load_dotenv()
@@ -72,26 +72,9 @@ class Server:
                     str(msg))
         return None
 
-    def list_tools(self)->None:
-        i=0
-        for k,v in registry.tools.items():
-            i+=1
-            tool_desc[i]=ToolItem.model_validate({
-                            "name": ,
-                            "description": i["description"],
-                            "inputSchema": {
-                                "type": "object",
-                                "properties": {
-                                    "a": {"type": "number"},
-                                    "b": {"type": "number"},
-                                },
-                                "required": ["a", "b"],
-                            },
-                        })
+    def list_tools(self)->ListResult:
+        return ListResult(tools=registry.all_tools())
                     
-
-        return None
-        
     def handle_msg(self,line:str)->Msg|None:
         try:
             msg=Msg(**json.loads(line.strip()))

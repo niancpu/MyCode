@@ -2,10 +2,10 @@ import subprocess
 import json
 from typing import Any
 from models import InitResp,ToolCallResp,ToolListResp,Msg
-from logger_config import logger_config
+from utils import get_logger
 import logging
 
-logger_config()
+log=get_logger(__name__)
 logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 
