@@ -1,5 +1,5 @@
-from register import ToolRegister
-from search import TavilySearch
+from registry import ToolRegister
+from tools.search import TavilySearch
 
 search_tool=TavilySearch()
 registry=ToolRegister()

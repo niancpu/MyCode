@@ -1,10 +1,12 @@
 from typing import Any,Callable
+from models import ToolItem,InputSchema
+
 class ToolRegister:
     def __init__(self) -> None:
-        self.tools:dict[str,dict[str,Any]]={}
+        self.tools:list[ToolItem]=[]
     
-    def register(self,name:str,description:str,func:Callable)->None:
-        self.tools[name]={"description":description,"func":func}
+    def register(self,name:str,description:str,func:Callable,input_schema:InputSchema)->None:
+        item=ToolItem(name=name,description=description,func=func)
 
     def get_tool(self,name:str)->Callable|str:
         if self.tools[name]:

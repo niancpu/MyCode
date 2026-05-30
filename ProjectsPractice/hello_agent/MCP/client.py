@@ -1,7 +1,7 @@
 import subprocess
 import json
-from typing import Optional
-from models import Resp,Msg
+from typing import Any
+from models import InitResp,ToolCallResp,ToolListResp,Msg
 from logger_config import logger_config
 import logging
 
@@ -26,7 +26,7 @@ class server:
         self.id+=1
         return self.id
     
-    def _send_request(self,msg:Msg)->Resp:
+    def _send_request(self,msg:Msg)->dict:
         assert self.proc.stdin is not None
         assert self.proc.stdout is not None
         self.proc.stdin.write(json.dumps(msg)+"\n")
@@ -35,9 +35,8 @@ class server:
             line=self.proc.stdout.readline()
         except Exception as e:
             raise RuntimeError(f"stdout返回读取出错！{e}")from e
-        if msg.id is None:
-            raise RuntimeError("非notification消息返回体无id！")
-        return self.read_response(msg.id,line)
+        assert msg.id is not None
+        return self._read_response(msg.id,line)
 
     def send_notification(self)->None:
         notification=Msg(method="notifications/initialized")
@@ -46,9 +45,9 @@ class server:
         self.proc.stdin.write(json.dumps(notification)+"\n")
         self.proc.stdin.flush()
     
-    def read_response(self,id:int,response:str)->Resp:
+    def _read_response(self,id:int,response:str)->dict:
         try:
-            resp=Resp(**json.loads(response))
+            resp=json.loads(response)
         except Exception as e:
             raise RuntimeError(f"未能成功解析返回的json，格式错误！{e}")from e
         if resp.id!=id:
@@ -59,9 +58,10 @@ class server:
             raise RuntimeError(f"响应报错，报错如下：\n{json.dumps(resp.error)}")
         return resp
     
+    
     def initialize(self):
         resp=self.call(method="initialize")
-        result=resp.result
+        result=resp["result"]
         if result is None:
             raise RuntimeError(f"initialize方法返回体不应为空！")
         self.protocolVersion=result["protocolVersion"]
@@ -87,7 +87,7 @@ class server:
 #   }
 # }        
 
-    def call(self,method:str,params:dict[str,str]|None=None)->Resp:
+    def call(self,method:str,params:dict[str,Any]|None=None)->dict:
         if params is None:
             if(method is not "initialize"):
                 raise RuntimeError(f"缺少参数！")
