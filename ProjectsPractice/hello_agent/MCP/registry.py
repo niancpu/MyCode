@@ -5,19 +5,15 @@ class ToolRegister:
     def __init__(self) -> None:
         self.tools:list[ToolItem]=[]
     
-    def register(self,name:str,description:str,func:Callable,input_schema:InputSchema)->None:
-        item=ToolItem(name=name,description=description,func=func)
+    def register(self,name:str,description:str,func:Callable,input_schema:str)->None:
+        item=ToolItem(name=name,description=description,func=func,inputSchema=InputSchema.model_validate(input_schema))
 
-    def get_tool(self,name:str)->Callable|str:
-        if self.tools[name]:
-            return self.tools[name]["func"]
-        else:
-            return "此工具不存在！"
+    def get_tool(self,name:str)->Callable|None:
+        for i in self.tools:
+            if i.name==name:
+                return i.func
     
-    def all_tools(self)->dict[str,str]:
-        all_tools={}
-        for k,v in self.tools.items():
-            all_tools.update({k:v["description"]})
-        return all_tools
+    def all_tools(self):
+        return self.tools
     
     

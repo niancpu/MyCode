@@ -54,7 +54,7 @@ class InputSchema(BaseModel):
 class ToolItem(BaseModel):
     name:str
     description:str
-    InputSchema:InputSchema
+    inputSchema:InputSchema
     func:None|Callable=None
 
 class ListResult(BaseModel):
