@@ -9,7 +9,6 @@ from tools.tool_register import registry
 from typing import Any
 
 
-
 log=get_logger(__name__)
 log=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
