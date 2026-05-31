@@ -1,5 +1,10 @@
+from client import MCPClient
+
 def main():
-    print("Hello from mcp!")
+    client=MCPClient(cmd=["python","server.py"])
+    client.send_notification()
+    client.initialize()
+    
 
 
 if __name__ == "__main__":

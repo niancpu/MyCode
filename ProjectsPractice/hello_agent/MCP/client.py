@@ -9,7 +9,7 @@ log=get_logger(__name__)
 logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 
-class server:
+class MCPClient:
     def __init__(self,cmd:list[str]) -> None:
         self.proc=subprocess.Popen(
             cmd,
@@ -42,7 +42,7 @@ class server:
         notification=Msg(method="notifications/initialized")
         assert self.proc.stdin is not None
         assert self.proc.stdout is not None
-        self.proc.stdin.write(json.dumps(notification)+"\n")
+        self.proc.stdin.write(Msg.model_dump_json(notification)+"\n")
         self.proc.stdin.flush()
     
     def _read_response(self,id:int,response:str)->dict:
