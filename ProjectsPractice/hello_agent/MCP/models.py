@@ -22,7 +22,7 @@ class Msg(BaseModel):
     params:dict[str,Any]|None=None
 
 class TextContent(BaseModel):
-    type:Literal["text"]
+    type:Literal["text"]="text"
     text:str|None=None
 
 class ResourceContent(BaseModel):
@@ -37,16 +37,14 @@ class ToolBackContent(BaseModel):
             ]
         ]|None=None
 
-class CallResult(BaseModel):
-    result:ToolBackContent|None=None
-
 class ToolCallResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
-    result:CallResult|None
+    result:ToolBackContent|None
     error:dict|None=None
 
 class InputSchema(BaseModel):
+    model_config=ConfigDict(extra="ignore")
     type:Literal["object"]
     properties:dict[str,str]
     required:list[str]
@@ -55,7 +53,9 @@ class ToolItem(BaseModel):
     name:str
     description:str
     inputSchema:InputSchema
-    func:None|Callable=None
+    func:Callable=Field(exclude=True)
+
+
 
 class ListResult(BaseModel):
     tools:list[ToolItem]
@@ -63,7 +63,7 @@ class ListResult(BaseModel):
 class ToolListResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
-    result:ListResult|None
+    result:ListResult
     error:dict|None=None
 
 class InitResult(BaseModel):
@@ -85,4 +85,6 @@ class ErrorResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
     errorContent:ErrorContent
+
+
 

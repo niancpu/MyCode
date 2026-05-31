@@ -1,18 +1,19 @@
 import sys
 import json
-from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema,ListResult
+from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema,ListResult,ToolCallResp,ToolBackContent
 from dotenv import load_dotenv
 from os import getenv
 import logging
 from utils import get_logger
 from tools.tool_register import registry
+from typing import Any
+
+
 
 log=get_logger(__name__)
 log=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
 
 load_dotenv()
-tool_desc={}
-
 
 try:
     VERSION=getenv("VERSION")
@@ -24,26 +25,41 @@ class Server:
         self.protocolVersion: str = "2024-11-05"
         self.capabilities: dict ={"tools":{}} #tools
         self.serverInfo: dict = {"name":"nianzu's handmade MCP","version":VERSION}#name&version 
-
-    def dispath(self,msg:Msg)->dict|None:
+    def dispath(self,msg:Msg)->str|None:
         method=msg.method
-        if method =="toos/call":
-            return {method:tool_desc[method]}        
-        elif method == "tools/list":
-            return None
-        elif msg.method == "initialize":
-            assert msg.id is not None
-            inited_resp=self.init_resp(msg.id)
-            self.send_resp(InitResp.model_dump_json(inited_resp))
-            return None
-        if msg.method == "notifications/initialized":
-            self.handle_initialized_notifications(msg)
-            return None
+        if (msg.params is None)and(msg.id is None):
+            if msg.method == "notifications/initialized":
+                self.handle_initialized_notifications(msg)
+                return None
+            else:
+                log.error("非notifications方法param字段为空")
+        elif not(msg.params is not None)and(msg.id is not None):
+            log.error("非notification方法id和params字段不同时为真")
+        else:
+            assert msg.id and msg.params is not None
+            if method =="tools/call":
+                resp=self.tool_call(id=msg.id,params=msg.params)
+            elif method == "tools/list":
+                tool_list:ListResult=self.list_tools()
+                resp=self.get_list_resp(msg.id,tool_list)
+            elif msg.method == "initialize":
+                assert msg.id is not None
+                resp=self.init_resp(msg.id)
+            return str(resp)
+            
 
     
-    # def call(self,params:dict)->dict:
+    def tool_call(self,params:dict[str,Any],id:int)->ToolCallResp|None:
+        tool_list=self.list_tools()
+        for i in tool_list.tools:#这里不能for i in tool_list是因为Pydantic 的 BaseModel 实现了 __iter__，遍历它等价于遍历 .model_dump() 的键值对而不是遍历.tools属性
+            if params["name"] in i.name:
+                result:ToolBackContent=i.func(params["property"])
+                return ToolCallResp(result=result,id=id)
+            else:
+                return None
 
-                
+
+            
     def init_resp(self,id:int)->InitResp:
         result=InitResult.model_validate({
             "protocolVersion":self.protocolVersion,
@@ -74,7 +90,10 @@ class Server:
 
     def list_tools(self)->ListResult:
         return ListResult(tools=registry.all_tools())
-                    
+
+    def get_list_resp(self,id:int,tool_list:ListResult)->ToolListResp:
+        return ToolListResp(id=id,result=tool_list)
+
     def handle_msg(self,line:str)->Msg|None:
         try:
             msg=Msg(**json.loads(line.strip()))
@@ -94,24 +113,23 @@ class Server:
         log.debug("list_tools",
                   str(self.list_tools))
         for x in sys.stdin:#sys.stdin默认用\n作为分隔符
+            log.info("Server接收messages")
             msg=self.handle_msg(x)
             log.debug("msg",
                       str(msg))
             if msg is None:
                 continue
             log.info("成功接受message")
-            tool_desc=self.dispath(msg)
-            log.debug("tool_desc",
-                      str(tool_desc))
-            if tool_desc is None:
-                return None
+            resp=self.dispath(msg)
+            log.debug(resp)
+            if resp is not None:
+                self.send_resp(resp=resp)
+                log.info("server返回response")
         
 
 def main():
-
-
-            
-        
+    server=Server()
+    server.run()
 
 if __name__=="__main__":
     main()
