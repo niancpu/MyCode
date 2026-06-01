@@ -3,8 +3,8 @@ import sys
 
 def get_logger(name:str,stream=sys.stderr)->logging.Logger:
     logging.basicConfig(
-        format="[%(levelname)s] [%(asctime)s] %(name)s %(lineno)d:%(message)s",
-        level=logging.INFO,
+        format="[%(levelname)s] [%(asctime)s] %(name)s-%(lineno)d：%(message)s",
+        level=logging.DEBUG,
         stream=stream
     )
     logger=logging.getLogger(name)

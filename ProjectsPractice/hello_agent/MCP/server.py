@@ -8,10 +8,7 @@ from utils import get_logger
 from tools.tool_register import registry
 from typing import Any
 
-
 log=get_logger(__name__)
-log=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
-
 load_dotenv()
 
 try:
@@ -23,7 +20,8 @@ class Server:
     def __init__(self):
         self.protocolVersion: str = "2024-11-05"
         self.capabilities: dict ={"tools":{}} #tools
-        self.serverInfo: dict = {"name":"nianzu's handmade MCP","version":VERSION}#name&version 
+        self.serverInfo: dict = {"name":"nianzu's handmade MCP","version":VERSION}#name&version
+ 
     def dispath(self,msg:Msg)->str|None:
         method=msg.method
         if (msg.params is None)and(msg.id is None):
@@ -45,8 +43,6 @@ class Server:
                 assert msg.id is not None
                 resp=self.init_resp(msg.id)
             return str(resp)
-            
-
     
     def tool_call(self,params:dict[str,Any],id:int)->ToolCallResp|None:
         tool_list=self.list_tools()

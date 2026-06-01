@@ -1,9 +1,11 @@
+import threading
 import subprocess
 import json
 from typing import Any
 from models import InitResp,ToolCallResp,ToolListResp,Msg
 from utils import get_logger
 import logging
+import sys
 
 log=get_logger(__name__)
 logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
@@ -16,11 +18,9 @@ class MCPClient:
             bufsize=1,
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
             text=True
         )
         self.id:int=0
-
     
     def _next_id(self)->int:
         self.id+=1
@@ -29,14 +29,22 @@ class MCPClient:
     def _send_request(self,msg:Msg)->dict:
         assert self.proc.stdin is not None
         assert self.proc.stdout is not None
-        self.proc.stdin.write(json.dumps(msg)+"\n")
+        log.debug(Msg.model_dump_json(msg))
+        self.proc.stdin.write(Msg.model_dump_json(msg)+"\n")
         self.proc.stdin.flush()
-        try:
-            line=self.proc.stdout.readline()
-        except Exception as e:
-            raise RuntimeError(f"stdout返回读取出错！{e}")from e
-        assert msg.id is not None
-        return self._read_response(msg.id,line)
+        line=self.proc.stdout.readline()
+        if not line:
+            retcode=self.proc.poll()
+            if retcode is not None:
+                log.warning(f"mcp server子进程返回，返回码{retcode}")
+            else:
+                raise RuntimeError("子进程异常退出")
+        log.debug(line)
+        if line is not None:
+            assert msg.id is not None
+            return self._read_response(msg.id,line)
+        else:
+            raise RuntimeError("空回复或无id返回！")
 
     def send_notification(self)->None:
         notification=Msg(method="notifications/initialized")
@@ -47,6 +55,7 @@ class MCPClient:
     
     def _read_response(self,id:int,response:str)->dict:
         try:
+            log.debug(response)
             resp=json.loads(response)
         except Exception as e:
             raise RuntimeError(f"未能成功解析返回的json，格式错误！{e}")from e
@@ -89,7 +98,7 @@ class MCPClient:
 
     def call(self,method:str,params:dict[str,Any]|None=None)->dict:
         if params is None:
-            if(method is not "initialize"):
+            if(method != "initialize"):
                 raise RuntimeError(f"缺少参数！")
 
             msg=Msg(id=self._next_id(),method=method)
