@@ -1,12 +1,12 @@
 from client import MCPClient
 from utils import get_logger
-from models import InputSchema
 from sys import executable
 from tools.tool_models import Add
+import asyncio
 
 logger=get_logger(__name__)
 
-def main():
+def run():
     logger.info("程序启动")
     client=MCPClient(cmd=[executable,"server.py"])
     client.send_notification()
@@ -19,11 +19,15 @@ def main():
     resp=client.call("tools/call",params={"a":1,"b":2})
     content=resp
     client.close()
-    
+
+async def main():
+    try:
+        result=await asyncio.gather(
+        asyncio.to_thread(run)
+        )
+    except (KeyboardInterrupt,RuntimeError) as e:
+        pass    
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt or RuntimeError:
-        pass
+    asyncio.run(main())

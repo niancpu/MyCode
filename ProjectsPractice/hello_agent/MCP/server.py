@@ -65,6 +65,11 @@ class Server:
 
             
     def init_resp(self,id:int)->InitResp:
+        log.debug(str({
+            "protocolVersion":self.protocolVersion,
+            "serverInfo":self.serverInfo,
+            "capabilities":self.capabilities
+            }))
         result=InitResult.model_validate({
             "protocolVersion":self.protocolVersion,
             "serverInfo":self.serverInfo,
