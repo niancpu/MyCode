@@ -7,7 +7,12 @@ class SearchResults(BaseModel):
     content:str
     url:str
     score:float
-    
+
+class ErrorContent(BaseModel):
+    code:int
+    message:str
+    data:str
+   
 class SearchResponse(BaseModel):
     model_config=ConfigDict(extra="ignore")
     result:SearchResults
@@ -41,7 +46,7 @@ class ToolCallResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
     result:ToolBackContent|None
-    error:dict|None=None
+    error:ErrorContent|None=None
 
 class InputSchema(BaseModel):
     model_config=ConfigDict(extra="ignore")
@@ -54,6 +59,7 @@ class ToolItem(BaseModel):
     description:str
     inputSchema:InputSchema
     func:Callable=Field(exclude=True)
+    model:type[BaseModel]=Field(exclude=True)
 
 
 
@@ -64,10 +70,10 @@ class ToolListResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
     result:ListResult
-    error:dict|None=None
+    error:None|ErrorContent=None
 
 class InitResult(BaseModel):
-    protocloVersion:str
+    protocolVersion:str
     capabilities:dict[str,dict]
     serverInfo:dict[str,str]
 
@@ -75,11 +81,7 @@ class InitResp(BaseModel):
     jsonrpc:str="2.0"
     id:int|None
     result:InitResult
-
-class ErrorContent(BaseModel):
-    code:int
-    message:str
-    data:str
+    error:None|ErrorContent=None
 
 class ErrorResp(BaseModel):
     jsonrpc:str="2.0"

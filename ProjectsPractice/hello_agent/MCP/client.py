@@ -60,15 +60,17 @@ class MCPClient:
     
     def _read_response(self,id:int,response:str)->dict:
         try:
-            log.debug(response)
+            log.debug(repr(response[:80]))   # 看原始字符串前80个字符
             resp=json.loads(response)
+            log.debug(resp)
+            log.debug(type(resp))
         except Exception as e:
             raise RuntimeError(f"未能成功解析返回的json，格式错误！{e}")from e
-        if resp.id!=id:
+        if resp["id"]!=id:
             raise RuntimeError(f"id不匹配！")
-        if resp.jsonrpc!="2.0":
+        if resp["jsonrpc"]!="2.0":
             raise RuntimeError(f"jsonrpc版本号不对！")
-        if resp.error is not None:
+        if resp["error"]:
             raise RuntimeError(f"响应报错，报错如下：\n{json.dumps(resp.error)}")
         return resp
     
@@ -103,8 +105,7 @@ class MCPClient:
 
     def call(self,method:str,params:dict[str,Any]|None=None)->dict:
         if params is None:
-            if(method != "initialize"):
-                raise RuntimeError(f"缺少参数！")
+            params={}
 
             msg=Msg(id=self._next_id(),method=method)
             return self._send_request(msg=msg)

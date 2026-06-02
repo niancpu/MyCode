@@ -30,22 +30,34 @@ class Server:
             else:
                 log.error("非notifications方法param字段为空")
         else:
-            assert msg.id and msg.params is not None
-            if method =="tools/call":
+            if msg.params is None:
+                msg.params={}
+            assert msg.id is not None
+            if msg.method == "initialize":
+                resp=self.init_resp(msg.id)
+                json_resp=InitResp.model_dump_json(resp) if (resp is not None) else None
+
+            elif method =="tools/call":
+                log.debug("==============================================================")
+                assert msg.id and msg.params is not None
                 resp=self.tool_call(id=msg.id,params=msg.params)
+                json_resp=ToolCallResp.model_dump_json(resp) if (resp is not None) else None
             elif method == "tools/list":
+                assert msg.id is not None
                 tool_list:ListResult=self.list_tools()
                 resp=self.get_list_resp(msg.id,tool_list)
-            elif msg.method == "initialize":
-                assert msg.id is not None
-                resp=self.init_resp(msg.id)
-            return str(resp)
+                json_resp=ToolListResp.model_dump_json(resp) if (resp is not None) else None
+
+            return json_resp
+        
+    
     
     def tool_call(self,params:dict[str,Any],id:int)->ToolCallResp|None:
         tool_list=self.list_tools()
         for i in tool_list.tools:#这里不能for i in tool_list是因为Pydantic 的 BaseModel 实现了 __iter__，遍历它等价于遍历 .model_dump() 的键值对而不是遍历.tools属性
             if params["name"] in i.name:
-                result:ToolBackContent=i.func(params["property"])
+                validated=i.model.model_validate(params["arguments"])
+                result:ToolBackContent=i.func(**validated.model_dump())
                 return ToolCallResp(result=result,id=id)
             else:
                 return None

@@ -2,7 +2,6 @@ import tools.tool_models
 from tools.registry import ToolRegister
 # from tools.search import TavilySearch
 from utils import get_logger
-import json
 
 log=get_logger(__name__)
 
@@ -14,13 +13,14 @@ log=get_logger(__name__)
 #                   )
 log.warning("当前尚未注册Serach Tool")
 
+
 add_schema=tools.tool_models.Add.model_json_schema()
 
 registry=ToolRegister()
 registry.register(
     name="add",
     description="加法函数",
-    func=tools.tool_models.Add,
+    func=tools.tool_models.add_func,
     input_schema=add_schema
     )
 
