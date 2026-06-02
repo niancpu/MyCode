@@ -3,7 +3,7 @@ import sys
 
 def get_logger(name:str,stream=sys.stderr)->logging.Logger:
     logging.basicConfig(
-        format="[%(levelname)s] [%(asctime)s] %(name)s-%(lineno)d：%(message)s",
+        format="[%(levelname)s]/t[%(asctime)s]/t%(name)s-%(lineno)d：/t%(message)s",
         level=logging.DEBUG,
         stream=stream
     )

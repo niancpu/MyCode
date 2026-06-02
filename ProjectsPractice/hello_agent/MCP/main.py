@@ -6,28 +6,26 @@ import asyncio
 
 logger=get_logger(__name__)
 
-def run():
-    logger.info("程序启动")
-    client=MCPClient(cmd=[executable,"server.py"])
+async def run(client:MCPClient):
     client.send_notification()
     client.initialize()
-    logger.info("=============================================================")
+    logger.info("===============================开始tools/list============================")
     resuslt=client.call("tools/list")
     logger.info(resuslt)
-    logger.info("=============================================================")
-    add=Add(a=1,b=2)
+    logger.info("============================开始tools/call===============================")
     resp=client.call("tools/call",params={"a":1,"b":2})
-    content=resp
-    client.close()
 
-async def main():
-    try:
-        result=await asyncio.gather(
-        asyncio.to_thread(run)
-        )
-    except (KeyboardInterrupt,RuntimeError) as e:
-        pass    
 
 
 if __name__ == "__main__":
+    async def main():
+        client=MCPClient(cmd=[executable,"server.py"])
+        try:
+            logger.info("开始运行代码")
+            result=await asyncio.gather(
+            asyncio.to_thread(run,client)
+            )
+        except (KeyboardInterrupt,RuntimeError) as e:
+            logger.debug("进入main的except块")
+            client.close()
     asyncio.run(main())
