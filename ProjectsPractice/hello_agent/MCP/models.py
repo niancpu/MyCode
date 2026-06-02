@@ -46,7 +46,7 @@ class ToolCallResp(BaseModel):
 class InputSchema(BaseModel):
     model_config=ConfigDict(extra="ignore")
     type:Literal["object"]
-    properties:dict[str,str]
+    properties:dict[str,dict]
     required:list[str]
 
 class ToolItem(BaseModel):

@@ -32,19 +32,24 @@ class MCPClient:
         log.debug(Msg.model_dump_json(msg))
         self.proc.stdin.write(Msg.model_dump_json(msg)+"\n")
         self.proc.stdin.flush()
-        line=self.proc.stdout.readline()
-        if not line:
-            retcode=self.proc.poll()
-            if retcode is not None:
-                log.warning(f"mcp server子进程返回，返回码{retcode}")
-            else:
-                raise RuntimeError("子进程异常退出")
+        try:
+            line=self.proc.stdout.readline()
+        except KeyboardInterrupt:
+            self.close()
+            raise
         log.debug(line)
-        if line is not None:
+        if not line:
+            retcode=self.proc.poll() #防止子进程异常退出产生异常空回复
+            if retcode is not None:
+                raise RuntimeError(f"mcp server子进程返回，返回码{retcode}")
+            else:
+                log.warning("子进程活着但是异常回复")
+                raise RuntimeError("")
+        if line !="\n":
             assert msg.id is not None
             return self._read_response(msg.id,line)
         else:
-            raise RuntimeError("空回复或无id返回！")
+            return {}
 
     def send_notification(self)->None:
         notification=Msg(method="notifications/initialized")
@@ -110,10 +115,11 @@ class MCPClient:
         if self.proc.poll() is None:
             assert self.proc.stdin is not None
             assert self.proc.stdout is not None
+            self.proc.terminate()
+            self.proc.wait(timeout=5)  #等待5秒之后关管道，防止立刻关导致
             self.proc.stdin.close()        
             self.proc.stdout.close()
-            self.proc.terminate()
-            self.proc.wait(timeout=5)                
+              
         
 
 

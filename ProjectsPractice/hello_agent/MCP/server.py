@@ -3,7 +3,6 @@ import json
 from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema,ListResult,ToolCallResp,ToolBackContent
 from dotenv import load_dotenv
 from os import getenv
-import logging
 from utils import get_logger
 from tools.tool_register import registry
 from typing import Any
@@ -30,8 +29,6 @@ class Server:
                 return None
             else:
                 log.error("非notifications方法param字段为空")
-        elif not(msg.params is not None)and(msg.id is not None):
-            log.error("非notification方法id和params字段不同时为真")
         else:
             assert msg.id and msg.params is not None
             if method =="tools/call":
@@ -79,7 +76,7 @@ class Server:
         sys.stdout.flush()
 
     def handle_initialized_notifications(self,msg:Msg)->None:
-        log.warning("notification",
+        log.warning("notification"+
                     str(msg))
         return None
 
@@ -105,12 +102,12 @@ class Server:
 
     def run(self)->None:
         self.list_tools()
-        log.debug("list_tools",
-                  str(self.list_tools))
+        log.debug("list_tools："+
+                  str(self.list_tools()))
         for x in sys.stdin:#sys.stdin默认用\n作为分隔符
             log.info("Server接收messages")
             msg=self.handle_msg(x)
-            log.debug("msg",
+            log.debug("msg"+
                       str(msg))
             if msg is None:
                 continue
