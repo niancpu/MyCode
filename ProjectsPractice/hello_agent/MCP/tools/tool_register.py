@@ -1,10 +1,8 @@
 import tools.tool_models
 from tools.registry import ToolRegister
+from utils import log
+
 # from tools.search import TavilySearch
-from utils import get_logger
-
-log=get_logger(__name__)
-
 # search_tool=TavilySearch()
 # registry=ToolRegister()
 # registry.register(name="search",
@@ -23,4 +21,6 @@ registry.register(
     func=tools.tool_models.add_func,
     input_schema=add_schema
     )
+toos_list=registry.all_tools()
+log.debug("注册之后显示的是："+str(toos_list))
 

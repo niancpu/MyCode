@@ -1,12 +1,9 @@
 import logging
-import sys
+from sys import stderr
 
-def get_logger(name:str,stream=sys.stderr)->logging.Logger:
-    logging.basicConfig(
-        format="[%(levelname)s]/t[%(asctime)s]/t%(name)s-%(lineno)d：/t%(message)s",
-        level=logging.DEBUG,
-        stream=stream
-    )
-    logger=logging.getLogger(name)
-    return logger
-
+logging.basicConfig(
+    format="[%(asctime)s] [%(levelname)-5s] [%(filename)-14s:%(lineno)-4d] %(message)s",
+    level=logging.DEBUG,
+    stream=stderr,
+)
+log=logging.getLogger()

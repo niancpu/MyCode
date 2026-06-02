@@ -3,13 +3,9 @@ import subprocess
 import json
 from typing import Any
 from models import InitResp,ToolCallResp,ToolListResp,Msg
-from utils import get_logger
-import logging
 import asyncio
 
-log=get_logger(__name__)
-logger=logging.getLogger(__name__)#根据文件名，同一个模块共用一个logger
-
+from utils import log
 
 class MCPClient:
     def __init__(self,cmd:list[str]) -> None:
@@ -32,11 +28,7 @@ class MCPClient:
         log.debug(Msg.model_dump_json(msg))
         self.proc.stdin.write(Msg.model_dump_json(msg)+"\n")
         self.proc.stdin.flush()
-        try:
-            line=self.proc.stdout.readline()
-        except KeyboardInterrupt:
-            self.close()
-            raise
+        line=self.proc.stdout.readline()
         log.debug(line)
         if not line:
             retcode=self.proc.poll() #防止子进程异常退出产生异常空回复
@@ -116,13 +108,9 @@ class MCPClient:
         if self.proc.poll() is None:
             assert self.proc.stdin is not None
             assert self.proc.stdout is not None
-            self.proc.terminate()
+            self.proc.terminate()   
             self.proc.wait(timeout=5)  #等待5秒之后关管道，防止立刻关导致
-            self.proc.stdin.close()        
+            log.debug(self.proc.stdin)
+            log.debug(self.proc.stdout)
+            self.proc.stdin.close()    
             self.proc.stdout.close()
-              
-        
-
-
-
-

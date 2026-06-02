@@ -3,11 +3,10 @@ import json
 from models import InitResp, Msg,ToolListResp,InitResult,ErrorContent,ErrorResp,ToolItem,InputSchema,ListResult,ToolCallResp,ToolBackContent
 from dotenv import load_dotenv
 from os import getenv
-from utils import get_logger
 from tools.tool_register import registry
 from typing import Any
+from utils import log
 
-log=get_logger(__name__)
 load_dotenv()
 
 try:
@@ -22,6 +21,7 @@ class Server:
         self.serverInfo: dict = {"name":"nianzu's handmade MCP","version":VERSION}#name&version
  
     def dispath(self,msg:Msg)->str|None:
+        log.debug("despath函数："+str(msg))
         method=msg.method
         if (msg.params is None)and(msg.id is None):
             if msg.method == "notifications/initialized":
@@ -38,11 +38,13 @@ class Server:
                 json_resp=InitResp.model_dump_json(resp) if (resp is not None) else None
 
             elif method =="tools/call":
-                log.debug("==============================================================")
+                log.debug("=============================dispath_tools/call=============================")
                 assert msg.id and msg.params is not None
                 resp=self.tool_call(id=msg.id,params=msg.params)
+                log.debug(str(resp))
                 json_resp=ToolCallResp.model_dump_json(resp) if (resp is not None) else None
             elif method == "tools/list":
+                log.debug("进行tools/list")
                 assert msg.id is not None
                 tool_list:ListResult=self.list_tools()
                 resp=self.get_list_resp(msg.id,tool_list)
@@ -53,6 +55,7 @@ class Server:
     
     
     def tool_call(self,params:dict[str,Any],id:int)->ToolCallResp|None:
+        log.debug("tool_call:"+str(params))
         tool_list=self.list_tools()
         for i in tool_list.tools:#这里不能for i in tool_list是因为Pydantic 的 BaseModel 实现了 __iter__，遍历它等价于遍历 .model_dump() 的键值对而不是遍历.tools属性
             if params["name"] in i.name:
@@ -89,6 +92,7 @@ class Server:
     # def assemble_vals(self,tool_desc,i):
 
     def send_resp(self,resp:str)->None:
+        log.debug("实际发送的内容是："+resp)
         sys.stdout.write(resp+"\n")
         sys.stdout.flush()
 
@@ -98,7 +102,9 @@ class Server:
         return None
 
     def list_tools(self)->ListResult:
-        return ListResult(tools=registry.all_tools())
+        tool_list=ListResult(tools=registry.all_tools())
+        log.debug("list_tools:"+str(ListResult(tools=registry.all_tools())))
+        return tool_list
 
     def get_list_resp(self,id:int,tool_list:ListResult)->ToolListResp:
         return ToolListResp(id=id,result=tool_list)

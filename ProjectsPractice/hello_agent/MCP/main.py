@@ -1,31 +1,30 @@
 from client import MCPClient
-from utils import get_logger
-from sys import executable
+from sys import executable,stderr
 from tools.tool_models import Add
 import asyncio
+from utils import log
 
-logger=get_logger(__name__)
-
-async def run(client:MCPClient):
+def run(client:MCPClient):
     client.send_notification()
     client.initialize()
-    logger.info("===============================开始tools/list============================")
+    log.info("===============================开始tools/list============================")
     resuslt=client.call("tools/list")
-    logger.info(resuslt)
-    logger.info("============================开始tools/call===============================")
+    log.info(resuslt)
+    log.info("============================开始tools/call===============================")
     resp=client.call("tools/call",params={"a":1,"b":2})
-
+    log.debug(resp)
 
 
 if __name__ == "__main__":
     async def main():
         client=MCPClient(cmd=[executable,"server.py"])
         try:
-            logger.info("开始运行代码")
+            log.info("开始运行代码")
             result=await asyncio.gather(
             asyncio.to_thread(run,client)
             )
+            log.debug("keyinterrupt")
         except (KeyboardInterrupt,RuntimeError) as e:
-            logger.debug("进入main的except块")
+            log.debug("接受KeyInterrupt，进入main的except块")
             client.close()
     asyncio.run(main())
