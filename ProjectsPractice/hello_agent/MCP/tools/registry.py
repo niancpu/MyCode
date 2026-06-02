@@ -8,6 +8,7 @@ class ToolRegister:
     
     def register(self,name:str,description:str,func:Callable,input_schema:dict[str,Any])->None:
         item=ToolItem(name=name,description=description,func=func,inputSchema=InputSchema.model_validate(input_schema),model=Add)
+        self._tools.append(item)
 
     def get_tool(self,name:str)->Callable|None:
         for i in self._tools:

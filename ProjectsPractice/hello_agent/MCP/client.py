@@ -35,8 +35,7 @@ class MCPClient:
             if retcode is not None:
                 raise RuntimeError(f"mcp server子进程返回，返回码{retcode}")
             else:
-                log.warning("子进程活着但是异常回复")
-                raise RuntimeError("")
+                log.exception("子进程活着但是异常回复")
         if line !="\n":
             assert msg.id is not None
             return self._read_response(msg.id,line)

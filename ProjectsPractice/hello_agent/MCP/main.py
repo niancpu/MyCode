@@ -3,7 +3,8 @@ from sys import executable,stderr
 from tools.tool_models import Add
 import asyncio
 from utils import log
-
+import tools.tool_register
+ 
 def run(client:MCPClient):
     client.send_notification()
     client.initialize()
@@ -24,7 +25,7 @@ if __name__ == "__main__":
             asyncio.to_thread(run,client)
             )
             log.debug("keyinterrupt")
-        except (KeyboardInterrupt,RuntimeError) as e:
-            log.debug("接受KeyInterrupt，进入main的except块")
-            client.close()
+        except (KeyboardInterrupt,RuntimeError,BaseException):
+            log.exception("接受KeyInterrupt，进入main的except块")#log.exception会带上原始traceback
+            # client.close()
     asyncio.run(main())

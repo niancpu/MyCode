@@ -55,7 +55,7 @@ class Server:
     
     
     def tool_call(self,params:dict[str,Any],id:int)->ToolCallResp|None:
-        log.debug("tool_call:"+str(params))
+        log.debug("tool_call:"+json.loads(params))
         tool_list=self.list_tools()
         for i in tool_list.tools:#这里不能for i in tool_list是因为Pydantic 的 BaseModel 实现了 __iter__，遍历它等价于遍历 .model_dump() 的键值对而不是遍历.tools属性
             if params["name"] in i.name:
