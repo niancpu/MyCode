@@ -51,7 +51,7 @@ class MCPClient:
     
     def _read_response(self,id:int,response:str)->dict:
         try:
-            log.debug(repr(response[:80]))   # 看原始字符串前80个字符
+            log.debug(repr(response))   
             resp=json.loads(response)
             log.debug(resp)
             log.debug(type(resp))
