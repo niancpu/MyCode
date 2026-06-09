@@ -30,7 +30,7 @@ class LLMCall :
                 temperature=temperature
             )
          
-            print("模型响应成功！")
+            print("模型响应成功！")b
             for chunk in response:
                 if not chunk.choices:
                     continue

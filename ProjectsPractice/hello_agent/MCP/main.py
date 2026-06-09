@@ -3,7 +3,6 @@ from sys import executable,stderr
 from tools.tool_models import Add
 import asyncio
 from utils import log
-import tools.tool_register
  
 def run(client:MCPClient):
     client.send_notification()
